@@ -8,16 +8,21 @@ const {
   updateContact,
 } = require("../../controllers/getContactsControllers");
 
+const {
+  addPostValidation,
+  changePutValidation,
+} = require("../../middleware/validationMiddleware");
+
 const router = express.Router();
 
 router.get("/", listContacts);
 
-router.get("/:contactId", getContactId);
+router.get("/:id", getContactId);
 
-router.post("/", addContact);
+router.post("/", addPostValidation, addContact);
 
-router.delete("/:contactId", removeContact);
+router.delete("/:id", removeContact);
 
-router.put("/:contactId", updateContact);
+router.put("/:id", changePutValidation, updateContact);
 
 module.exports = router;

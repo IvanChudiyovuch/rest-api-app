@@ -14,7 +14,6 @@ const listContacts = async (req, res, next) => {
       code: 200,
       data: { contacts: results },
     });
-    console.log(getAllContacts);
   } catch (error) {
     console.error(error);
     next(error);
@@ -74,25 +73,21 @@ const removeContact = async (req, res, next) => {
       res.status(404).json({
         status: "error",
         code: 404,
-        message: `Not found task id: ${id}`,
+        message: `Not found contact id: ${id}`,
         data: "Not Found",
       });
     }
-  } catch (e) {
-    console.error(e);
-    next(e);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
 const updateContact = async (req, res, next) => {
   try {
-    const { contactId } = req.params;
+    const { id } = req.params;
     const { name, email, phone } = req.body;
-    const results = await updateContactById(contactId, {
-      name,
-      email,
-      phone,
-    });
+    const results = await updateContactById(id, name, email, phone);
     res.json({
       status: "success",
       code: 200,
@@ -100,9 +95,9 @@ const updateContact = async (req, res, next) => {
         contacts: results,
       },
     });
-  } catch (e) {
-    console.error(e);
-    next(e);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };
 
