@@ -66,21 +66,17 @@ const removeContact = async (req, res, next) => {
 const updateContact = async (req, res, next) => {
   const { id } = req.params;
   const body = req.body;
-  if (Object.keys(body).length === 0) {
-    res.status(400).json({ message: "missing fields" });
+  const results = await updateContactById(id, body);
+  if (results !== null) {
+    res.json({
+      status: "success",
+      code: 200,
+      data: {
+        contacts: results,
+      },
+    });
   } else {
-    const results = await updateContactById(id, body);
-    if (results !== null) {
-      res.json({
-        status: "success",
-        code: 200,
-        data: {
-          contacts: results,
-        },
-      });
-    } else {
-      res.status(404).json({ message: "Not found" });
-    }
+    res.status(404).json({ message: "Not found" });
   }
 };
 
