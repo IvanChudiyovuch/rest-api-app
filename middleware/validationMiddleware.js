@@ -4,9 +4,9 @@ const validationBody = (schema) => {
 
     if (validationResult.error) {
       validationResult.error = 400;
+      next(validationResult.error);
     }
-
-    next(validationResult.error);
+    next();
   };
 };
 
