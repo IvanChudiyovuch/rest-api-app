@@ -1,25 +1,29 @@
-const express = require('express')
+const express = require("express");
 
-const router = express.Router()
+const {
+  listContacts,
+  getContactId,
+  removeContact,
+  addContact,
+  updateContact,
+} = require("../../controllers/getContactsControllers");
 
-router.get('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const { validationBody } = require("../../middleware/validationMiddleware");
 
-router.get('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const { schemaPost, schemaPut } = require("../../schema/schemaValidation");
 
-router.post('/', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const { asyncWrapper } = require("../../helpers/apiHelpers");
 
-router.delete('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+const router = express.Router();
 
-router.put('/:contactId', async (req, res, next) => {
-  res.json({ message: 'template message' })
-})
+router.get("/", asyncWrapper(listContacts));
 
-module.exports = router
+router.get("/:id", asyncWrapper(getContactId));
+
+router.post("/", validationBody(schemaPost), asyncWrapper(addContact));
+
+router.delete("/:id", asyncWrapper(removeContact));
+
+router.put("/:id", validationBody(schemaPut), asyncWrapper(updateContact));
+
+module.exports = router;
