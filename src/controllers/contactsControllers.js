@@ -4,7 +4,8 @@ const {
   createContact,
   removeContactById,
   updateContactById,
-} = require("../models/contacts");
+  updateStatusContactById,
+} = require("../services/contactsServices");
 
 const listContacts = async (req, res, next) => {
   const results = await getAllContacts();
@@ -35,8 +36,8 @@ const getContactId = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
-  const { name, email, phone } = req.body;
-  const results = await createContact(name, email, phone);
+  const { name, email, phone, favorite } = req.body;
+  const results = await createContact(name, email, phone, favorite);
   res.json({
     status: "success",
     code: 200,
@@ -67,17 +68,32 @@ const updateContact = async (req, res, next) => {
   const { id } = req.params;
   const body = req.body;
   const results = await updateContactById(id, body);
-  if (results !== null) {
-    res.json({
-      status: "success",
-      code: 200,
-      data: {
-        contacts: results,
-      },
-    });
-  } else {
+  if (!results) {
     res.status(404).json({ message: "Not found" });
   }
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      contacts: results,
+    },
+  });
+};
+
+const updateStatusContact = async (req, res, next) => {
+  const { id } = req.params;
+  const body = req.body;
+  const results = await updateStatusContactById(id, body);
+  if (!results) {
+    return res.status(404).json({ message: "Not found" });
+  }
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      contacts: results,
+    },
+  });
 };
 
 module.exports = {
@@ -86,4 +102,5 @@ module.exports = {
   addContact,
   removeContact,
   updateContact,
+  updateStatusContact,
 };

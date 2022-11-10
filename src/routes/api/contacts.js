@@ -6,11 +6,16 @@ const {
   removeContact,
   addContact,
   updateContact,
-} = require("../../controllers/getContactsControllers");
+  updateStatusContact,
+} = require("../../controllers/contactsControllers");
 
 const { validationBody } = require("../../middleware/validationMiddleware");
 
-const { schemaPost, schemaPut } = require("../../schema/schemaValidation");
+const {
+  schemaPost,
+  schemaPut,
+  schemaPatch,
+} = require("../../schema/schemaValidation");
 
 const { asyncWrapper } = require("../../helpers/apiHelpers");
 
@@ -25,5 +30,11 @@ router.post("/", validationBody(schemaPost), asyncWrapper(addContact));
 router.delete("/:id", asyncWrapper(removeContact));
 
 router.put("/:id", validationBody(schemaPut), asyncWrapper(updateContact));
+
+router.patch(
+  "/:id/favorite",
+  validationBody(schemaPatch),
+  asyncWrapper(updateStatusContact)
+);
 
 module.exports = router;
