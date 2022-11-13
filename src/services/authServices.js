@@ -3,11 +3,15 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models/usersModel");
 const { JWT_SECRET } = require("../../config");
 
-const registrationUser = async (email, password) => {
-  const user = new User({ email, password: await bcrypt.hash(password, 10) });
-  if (user) {
+const registrationUser = async (email, password, subscription) => {
+  const user = new User(
+    { email, password: await bcrypt.hash(password, 10) },
+    subscription
+  );
+  if (!user) {
     return null;
   }
+
   await user.save();
   return user;
 };

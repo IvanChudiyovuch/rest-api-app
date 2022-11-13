@@ -7,18 +7,18 @@ const {
 } = require("../services/authServices");
 
 const registrationController = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, subscription } = req.body;
   const user = await User.findOne({ email });
   if (user) throw customError({ status: 409, message: "Email in use" });
 
-  await registrationUser(email, password);
+  await registrationUser(email, password, subscription);
 
   res.json({
     status: "success",
     code: 201,
     data: {
       email,
-      subscription: "starter",
+      subscription,
       message: "Registration successful",
     },
   });
