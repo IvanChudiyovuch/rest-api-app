@@ -1,28 +1,43 @@
 const jwt = require("jsonwebtoken");
+const { customError } = require("../helpers/error");
 const { User } = require("../models/usersModel");
 const { JWT_SECRET } = require("../../config");
 
 const authMiddleware = async (req, res, next) => {
-  const [, token] = req.headers.authorization.split(" ");
+  const authHeader = req.headers.authorization || " ";
+  const [tokenType, token] = authHeader.split(" ");
 
-  if (!token) {
-    next(res.status(401).json({ message: "Not authorized" }));
-  }
+  if (tokenType === "Bearer" && token) {
+    try {
+      const verifiedToken = jwt.verify(token, JWT_SECRET);
 
-  try {
-    const userToken = jwt.decode(token, JWT_SECRET);
-    const user = await User.findById(userToken.id);
+      const user = await User.findById(verifiedToken.id);
+      console.log(user);
+      if (!user) {
+        next(customError({ status: 400, message: "No user with such id" }));
+      }
 
-    if (token !== user.token) {
-      next(res.status(401).json({ message: "Not authorized" }));
+      if (!user.token) {
+        next(customError({ status: 400, message: "Token is invalid" }));
+      }
+
+      req.token = token;
+      req.user = user;
+
+      return next();
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        next(customError(error.name));
+      }
+      if (error.name === "JsonWebTokenError") {
+        next(customError(error.name));
+      }
+
+      throw error;
     }
-
-    req.token = token;
-    req.user = user;
-    next();
-  } catch (error) {
-    console.log(error.message);
   }
+
+  return next(customError({ status: 401, message: "Not authorized" }));
 };
 
 module.exports = { authMiddleware };
