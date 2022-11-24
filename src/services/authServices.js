@@ -1,15 +1,20 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const { v4: uuid } = require("uuid");
 const { User } = require("../models/usersModel");
 const { JWT_SECRET } = require("../../config");
-const gravatar = require("gravatar");
+const { sendVerificationMail } = require("../helpers/emailService");
 
 const registrationUser = async (email, password, subscription) => {
+  const verificationToken = uuid();
+
   const user = new User({
     email,
     password: await bcrypt.hash(password, 10),
     subscription,
     avatarURL: await gravatar.url(email, { protocol: "https" }),
+    verificationToken,
   });
 
   if (!user) {
@@ -17,6 +22,7 @@ const registrationUser = async (email, password, subscription) => {
   }
 
   await user.save();
+  await sendVerificationMail(email, verificationToken);
   return user;
 };
 
@@ -75,9 +81,34 @@ const changeUserAvatar = async (avatar, _id) => {
   return results.avatarURL;
 };
 
+const verifyUser = async (verificationToken) => {
+  const user = await User.findOneAndUpdate(
+    { verificationToken },
+    {
+      verificationToken: null,
+      verify: true,
+    },
+    { new: true }
+  );
+
+  return user;
+};
+
+const checkVerification = async ({ email }) => {
+  const user = await User.findOne({ email, verify: false });
+
+  if (!user) return null;
+
+  await sendVerificationMail(user.email, user.verificationToken);
+
+  return user;
+};
+
 module.exports = {
   registrationUser,
   loginUser,
   changeUserSubscription,
   changeUserAvatar,
+  verifyUser,
+  checkVerification,
 };
