@@ -2,12 +2,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/usersModel");
 const { JWT_SECRET } = require("../../config");
+const gravatar = require("gravatar");
 
 const registrationUser = async (email, password, subscription) => {
-  const user = new User(
-    { email, password: await bcrypt.hash(password, 10) },
-    subscription
-  );
+  const user = new User({
+    email,
+    password: await bcrypt.hash(password, 10),
+    subscription,
+    avatarURL: await gravatar.url(email, { protocol: "https" }),
+  });
+
   if (!user) {
     return null;
   }
@@ -60,8 +64,20 @@ const changeUserSubscription = async (subscription, _id) => {
   return results.subscription;
 };
 
+const changeUserAvatar = async (avatar, _id) => {
+  const results = await User.findByIdAndUpdate(
+    { _id },
+    { avatarURL: avatar },
+    {
+      returnOriginal: false,
+    }
+  );
+  return results.avatarURL;
+};
+
 module.exports = {
   registrationUser,
   loginUser,
   changeUserSubscription,
+  changeUserAvatar,
 };

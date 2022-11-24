@@ -7,6 +7,7 @@ const {
   logOutController,
   getCurrentUserController,
   changeUserSubscriptionController,
+  changeUserAvatarController,
 } = require("../../controllers/authControllers");
 
 const {
@@ -18,6 +19,7 @@ const { validationBody } = require("../../middleware/validationMiddleware");
 
 const { authMiddleware } = require("../../middleware/authMiddleware");
 const { asyncWrapper } = require("../../helpers/apiHelpers");
+const { uploadFile } = require("../../middleware/uploadMiddleware");
 
 router.post(
   "/registration",
@@ -40,6 +42,13 @@ router.patch(
   authMiddleware,
   validationBody(schemaPatchUser),
   asyncWrapper(changeUserSubscriptionController)
+);
+
+router.patch(
+  "/avatars",
+  authMiddleware,
+  uploadFile.single("avatar"),
+  asyncWrapper(changeUserAvatarController)
 );
 
 module.exports = router;
