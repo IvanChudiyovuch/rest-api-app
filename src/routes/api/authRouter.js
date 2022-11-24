@@ -8,11 +8,14 @@ const {
   getCurrentUserController,
   changeUserSubscriptionController,
   changeUserAvatarController,
+  verificationUserController,
+  resendVerificationUserController,
 } = require("../../controllers/authControllers");
 
 const {
   schemaPostUser,
   schemaPatchUser,
+  schemaVerifyUser,
 } = require("../../schema/userShemaValidation");
 
 const { validationBody } = require("../../middleware/validationMiddleware");
@@ -49,6 +52,17 @@ router.patch(
   authMiddleware,
   uploadFile.single("avatar"),
   asyncWrapper(changeUserAvatarController)
+);
+
+router.get(
+  "/verify/:verificationToken",
+  asyncWrapper(verificationUserController)
+);
+
+router.post(
+  "/verify",
+  validationBody(schemaVerifyUser),
+  asyncWrapper(resendVerificationUserController)
 );
 
 module.exports = router;

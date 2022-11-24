@@ -11,7 +11,12 @@ const schemaPatchUser = Joi.object({
   _id: Joi.string(),
 });
 
+const schemaVerifyUser = Joi.object({
+  email: Joi.string().email().required(),
+});
+
 module.exports = {
   schemaPostUser,
   schemaPatchUser,
+  schemaVerifyUser,
 };

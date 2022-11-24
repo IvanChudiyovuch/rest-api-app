@@ -10,6 +10,8 @@ const {
   loginUser,
   changeUserSubscription,
   changeUserAvatar,
+  verifyUser,
+  checkVerification,
 } = require("../services/authServices");
 
 const registrationController = async (req, res) => {
@@ -111,6 +113,28 @@ const changeUserAvatarController = async (req, res, next) => {
   });
 };
 
+const verificationUserController = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  const verifideUser = await verifyUser(verificationToken);
+
+  if (!verifideUser)
+    throw customError({ status: 404, message: "User not found" });
+  res.status(200).json({ message: "Verification successful" });
+};
+
+const resendVerificationUserController = async (req, res) => {
+  const user = await checkVerification(req.body);
+
+  if (!user)
+    return res
+      .status(400)
+      .json({ message: "Verification has already been passed" });
+
+  res.status(200).json({
+    message: "Verification email sent",
+  });
+};
+
 module.exports = {
   registrationController,
   loginController,
@@ -118,4 +142,6 @@ module.exports = {
   getCurrentUserController,
   changeUserSubscriptionController,
   changeUserAvatarController,
+  verificationUserController,
+  resendVerificationUserController,
 };
